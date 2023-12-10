@@ -1,8 +1,18 @@
+const {promises : fs} = require('fs')
 class ProductManager {
     constructor() {
         this.products = [];
     }
 
+    async writeproducts(product) {
+        let productJSON = JSON.stringify(product, null, 0)
+
+        await fs.writeFile('./products.json', productJSON)
+            .then(() => console.log("producto agregado al archivo JSON"))
+            .catch(error => console.log("algo ha ocurrido, se cancelo la operacion." + error))
+            .finally(console.log(this.getProducts()))
+
+    }
 
 
     addProduct(product) {
@@ -19,14 +29,30 @@ class ProductManager {
                 if (existingProduct.code === product.code) {
                     throw new Error("El código del producto ya existe");
                 }
+
             }
+
 
             // Crear el producto con un id autoincrementable
             product.id =  this.products.length + 1;
 
             // Agregar el producto al arreglo
             this.products.push(product);
+
+            // Agregar el produccto al archivo JSON
+            this.writeproducts(this.getProducts())
         }else throw new Error("los campos deben estar completos")
+    }
+
+    async readFile() {
+        await fs.readFile('./products.json')
+           .then(data => console.log(JSON.parse(data)))
+           .catch(err => console.log(err))
+           .finally(console.log("servicio finalizado."))
+
+        //const products = await fs.readFile('./products.json', 'utf-8')
+        //    .then(data => JSON.parse(data));
+        //console.log(products);
     }
 
     getProducts() {
@@ -40,7 +66,7 @@ class ProductManager {
             }
         }
 
-        console.log("No se encontró el producto con el id especificado");
+        throw new Error("No se encontró el producto con el id especificado");
 
     }
 }
@@ -55,3 +81,18 @@ class Product {
         this.description=description
     }
 }
+
+//entidad en java
+const product1=new Product("pc","Producto electronico",600000,"x",100,1)
+const product2=new Product("celular","Producto electronico",400000,"x",101,2)
+const product3=new Product("coca 3 lts","godddd",420,"x",102,12)
+
+//servicio en java
+const pm = new ProductManager()
+
+pm.addProduct(product1)
+pm.addProduct(product2)
+pm.addProduct(product3)
+
+pm.readFile()
+
