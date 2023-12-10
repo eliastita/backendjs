@@ -4,7 +4,7 @@ class ProductManager {
         this.products = [];
     }
 
-    async writeproducts(product) {
+    async addProduct2(product) {
         let productJSON = JSON.stringify(product, null, 0)
 
         await fs.writeFile('./products.json', productJSON)
@@ -40,11 +40,11 @@ class ProductManager {
             this.products.push(product);
 
             // Agregar el produccto al archivo JSON
-            this.writeproducts(this.getProducts())
+            this.addProduct2(this.getProducts())
         }else throw new Error("los campos deben estar completos")
     }
 
-    async readFile() {
+    async getProducts2() {
         await fs.readFile('./products.json')
            .then(data => console.log(JSON.parse(data)))
            .catch(err => console.log(err))
@@ -53,6 +53,21 @@ class ProductManager {
         //const products = await fs.readFile('./products.json', 'utf-8')
         //    .then(data => JSON.parse(data));
         //console.log(products);
+    }
+
+    async getProductById2(id) {
+        const products = await fs.readFile('./products.json', 'utf-8');
+        const vector = JSON.parse(products)
+        try {
+            console.log("==============")
+            const band = vector.find((prod)=> prod.id===id)
+
+            if (band)console.log(band)
+            else console.log("no encontrado")
+        } catch (error){
+            console.log("error:  ´" + error)
+        }
+
     }
 
     getProducts() {
@@ -85,14 +100,13 @@ class Product {
 //entidad en java
 const product1=new Product("pc","Producto electronico",600000,"x",100,1)
 const product2=new Product("celular","Producto electronico",400000,"x",101,2)
-const product3=new Product("coca 3 lts","godddd",420,"x",102,12)
 
 //servicio en java
 const pm = new ProductManager()
 
 pm.addProduct(product1)
 pm.addProduct(product2)
-pm.addProduct(product3)
 
-pm.readFile()
+pm.getProducts2()
 
+pm.getProductById2(2)
