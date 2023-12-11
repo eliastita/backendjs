@@ -99,7 +99,7 @@ class ProductManager {
         try{
             const data = this.getProducts()
             const productoId = data.findIndex(prod => prod.id==id)
-            if (productoId!=-1){
+            if (productoId!=0){
                 data.splice(productoId,1)
                 fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
                 return console.log("Elemento borrado exitosamente")
