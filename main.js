@@ -70,6 +70,48 @@ class ProductManager {
 
     }
 
+
+    ///////////////////// revisar update y delete
+    updateProduct = (id,update) => {
+        const data= this.getProducts()
+        let  producto = data.find((prod)=>prod.id==id)
+        if (producto){
+            producto = {...producto,...update,...{id:id}}
+            if (producto.title &&
+                producto.description &&
+                producto.price &&
+                producto.thumbnail &&
+                producto.code &&
+                producto.stock){
+                data[data.findIndex(prod => prod.id==id)]=producto
+                fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
+                return console.log("Producto actualizado exitosamente")
+            }else {
+                console.log("Se ingresó un producto incorrecto, verifique los campos obligatorios")
+            }
+
+        } else {
+            return console.log("Id not found")
+        }
+    }
+
+    deleteProduct = (id) => {
+        try{
+            const data = this.getProducts()
+            const productoId = data.findIndex(prod => prod.id==id)
+            if (productoId!=-1){
+                data.splice(productoId,1)
+                fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
+                return console.log("Elemento borrado exitosamente")
+            } else {
+                return console.log("Id not found")
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     getProducts() {
         return this.products;
     }
@@ -84,6 +126,7 @@ class ProductManager {
         throw new Error("No se encontró el producto con el id especificado");
 
     }
+
 }
 
 class Product {
@@ -107,6 +150,3 @@ const pm = new ProductManager()
 pm.addProduct(product1)
 pm.addProduct(product2)
 
-pm.getProducts2()
-
-pm.getProductById2(2)
