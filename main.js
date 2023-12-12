@@ -72,6 +72,26 @@ class ProductManager {
 
 
     ///////////////////// revisar update y delete
+    //async updateProduct(id, product) {
+    //    const products = await fs.readFile('./products.json');
+//
+    //    // Buscamos el producto con el id especificado
+    //    const productToUpdate = products.find((product) => product.id === id);
+//
+    //    // Si el producto no existe, lanzamos un error
+    //    if (!productToUpdate) {
+    //        throw new Error(`No se encontró el producto con el id ${id}`);
+    //    }
+//
+    //    // Actualizamos el producto
+    //    productToUpdate = Object.assign(productToUpdate, product);
+//
+    //    // Volvemos a escribir el archivo JSON con el producto actualizado
+    //    await fs.writeFile('./products.json', JSON.stringify(products));
+//
+    //    return productToUpdate;
+    //}
+
     updateProduct = (id,update) => {
         const data= this.getProducts()
         let  producto = data.find((prod)=>prod.id==id)
