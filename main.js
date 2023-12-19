@@ -1,13 +1,18 @@
-const {promises : fs} = require('fs')
+const fs = {
+    fs: require('node:fs'),
+    // Add your other functions and variables here
+};
+
 class ProductManager {
     constructor() {
         this.products = [];
+        this.path="./products.json"
     }
 
     async addProduct2(product) {
         let productJSON = JSON.stringify(product, null, 0)
 
-        await fs.writeFile('./products.json', productJSON)
+        await fs.fs.writeFile(this.path, productJSON)
             .then(() => console.log("producto agregado al archivo JSON"))
             .catch(error => console.log("algo ha ocurrido, se cancelo la operacion." + error))
             .finally(console.log(this.getProducts()))
@@ -45,7 +50,7 @@ class ProductManager {
     }
 
     async getProducts2() {
-        await fs.readFile('./products.json')
+        await fs.fs.readFile(this.path)
            .then(data => console.log(JSON.parse(data)))
            .catch(err => console.log(err))
            .finally(console.log("servicio finalizado."))
@@ -56,7 +61,7 @@ class ProductManager {
     }
 
     async getProductById2(id) {
-        const products = await fs.readFile('./products.json', 'utf-8');
+        const products = await fs.fs.readFile(this.path, 'utf-8');
         const vector = JSON.parse(products)
         try {
             console.log("==============")
@@ -71,57 +76,47 @@ class ProductManager {
     }
 
 
-    ///////////////////// revisar update y delete
-    //async updateProduct(id, product) {
-    //    const products = await fs.readFile('./products.json');
-//
-    //    // Buscamos el producto con el id especificado
-    //    const productToUpdate = products.find((product) => product.id === id);
-//
-    //    // Si el producto no existe, lanzamos un error
-    //    if (!productToUpdate) {
-    //        throw new Error(`No se encontró el producto con el id ${id}`);
-    //    }
-//
-    //    // Actualizamos el producto
-    //    productToUpdate = Object.assign(productToUpdate, product);
-//
-    //    // Volvemos a escribir el archivo JSON con el producto actualizado
-    //    await fs.writeFile('./products.json', JSON.stringify(products));
-//
-    //    return productToUpdate;
-    //}
 
-    updateProduct = (id,update) => {
-        const data= this.getProducts()
-        let  producto = data.find((prod)=>prod.id==id)
-        if (producto){
-            producto = {...producto,...update,...{id:id}}
-            if (producto.title &&
-                producto.description &&
-                producto.price &&
-                producto.thumbnail &&
-                producto.code &&
-                producto.stock){
-                data[data.findIndex(prod => prod.id==id)]=producto
-                fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
-                return console.log("Producto actualizado exitosamente")
-            }else {
-                console.log("Se ingresó un producto incorrecto, verifique los campos obligatorios")
-            }
+    async updateProduct2(id, product ) {
+        //crear vector
+        let productos = this.transformar()
 
-        } else {
-            return console.log("Id not found")
+
+        //saber indice
+        const indice = productos.findIndex((product)=> product.id === id)
+
+        // Si el producto no existe, lanzamos un error
+        if (indice ===-1) {
+            throw new Error(`No se encontró el producto con el id ${id}`)
         }
+
+
+        productos[indice].title =product.title
+        productos[indice].thumbnail =product.thumbnail
+        productos[indice].stock =product.stock
+        productos[indice].code =product.code
+        productos[indice].description =product.description
+        productos[indice].price =product.price
+
+        // Volvemos a escribir el archivo JSON con el producto actualizado
+        await fs.fs.writeFileSync(this.path, JSON.stringify(productos))
+
+
+
+        console.log(this.transformar())
     }
+
+
 
     deleteProduct = (id) => {
         try{
-            const data = this.getProducts()
-            const productoId = data.findIndex(prod => prod.id==id)
-            if (productoId!=0){
+            const data = this.transformar()
+            console.log(data[0].id)
+            const productoId = data.findIndex(prod => prod.id===id)
+            console.log(productoId)
+            if (productoId!=-1){
                 data.splice(productoId,1)
-                fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
+                fs.fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
                 return console.log("Elemento borrado exitosamente")
             } else {
                 return console.log("Id not found")
@@ -135,6 +130,14 @@ class ProductManager {
     getProducts() {
         return this.products;
     }
+
+    transformar = () => {
+        const dataJson = fs.fs.readFileSync(this.path, "utf-8")
+
+        const vector = JSON.parse(dataJson)
+        return vector
+    }
+
 
     getProductById(id) {
         for (const product of this.products) {
@@ -164,9 +167,13 @@ class Product {
 const product1=new Product("pc","Producto electronico",600000,"x",100,1)
 const product2=new Product("celular","Producto electronico",400000,"x",101,2)
 
+const productPrueba=new Product("prueba","prueba electronico",4200,"z",111,8)
+
+
 //servicio en java
 const pm = new ProductManager()
 
-pm.addProduct(product1)
-pm.addProduct(product2)
+
+pm.deleteProduct(2)
+console.log(pm.transformar())
 
