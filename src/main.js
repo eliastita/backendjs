@@ -174,6 +174,4 @@ const productPrueba=new Product("prueba","prueba electronico",4200,"z",111,8)
 const pm = new ProductManager()
 
 
-pm.deleteProduct(2)
-console.log(pm.transformar())
 
