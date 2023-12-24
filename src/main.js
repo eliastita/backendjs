@@ -1,21 +1,18 @@
-const fs = {
-    fs: require('node:fs'),
-    // Add your other functions and variables here
-};
+//const fs = {
+//    fs: require('node:fs'),
+//};
+import fs from "node:fs"
+import { promises, existsSync} from "node:fs"
 
-class ProductManager {
+export default class ProductManager {
     constructor() {
         this.products = [];
         this.path="./products.json"
     }
 
-    async addProduct2(product) {
-        let productJSON = JSON.stringify(product, null, 0)
-
-        await fs.fs.writeFile(this.path, productJSON)
-            .then(() => console.log("producto agregado al archivo JSON"))
-            .catch(error => console.log("algo ha ocurrido, se cancelo la operacion." + error))
-            .finally(console.log(this.getProducts()))
+    async addProduct2() {
+        let productJSON = JSON.stringify(this.products, null, 2)
+        fs.writeFileSync(this.path,productJSON)
 
     }
 
@@ -45,15 +42,14 @@ class ProductManager {
             this.products.push(product);
 
             // Agregar el produccto al archivo JSON
-            this.addProduct2(this.getProducts())
+            this.addProduct2()
         }else throw new Error("los campos deben estar completos")
     }
 
     async getProducts2() {
-        await fs.fs.readFile(this.path)
-           .then(data => console.log(JSON.parse(data)))
-           .catch(err => console.log(err))
-           .finally(console.log("servicio finalizado."))
+
+        const json = fs.readFileSync(this.path)
+        return JSON.parse(json)
 
         //const products = await fs.readFile('./products.json', 'utf-8')
         //    .then(data => JSON.parse(data));
@@ -61,13 +57,16 @@ class ProductManager {
     }
 
     async getProductById2(id) {
-        const products = await fs.fs.readFile(this.path, 'utf-8');
+        const products = await fs.readFileSync(this.path, 'utf-8');
         const vector = JSON.parse(products)
         try {
             console.log("==============")
             const band = vector.find((prod)=> prod.id===id)
 
-            if (band)console.log(band)
+            if (band){
+                console.log(band)
+                return band
+            }
             else console.log("no encontrado")
         } catch (error){
             console.log("error:  ´" + error)
@@ -99,7 +98,7 @@ class ProductManager {
         productos[indice].price =product.price
 
         // Volvemos a escribir el archivo JSON con el producto actualizado
-        await fs.fs.writeFileSync(this.path, JSON.stringify(productos))
+        await fs.writeFileSync(this.path, JSON.stringify(productos))
 
 
 
@@ -111,12 +110,12 @@ class ProductManager {
     deleteProduct = (id) => {
         try{
             const data = this.transformar()
-            console.log(data[0].id)
+            //console.log(data[0].id)
             const productoId = data.findIndex(prod => prod.id===id)
-            console.log(productoId)
+            //console.log(productoId)
             if (productoId!=-1){
                 data.splice(productoId,1)
-                fs.fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
+                fs.writeFileSync(this.path,JSON.stringify(data,null,2),"utf-8")
                 return console.log("Elemento borrado exitosamente")
             } else {
                 return console.log("Id not found")
@@ -132,7 +131,7 @@ class ProductManager {
     }
 
     transformar = () => {
-        const dataJson = fs.fs.readFileSync(this.path, "utf-8")
+        const dataJson = fs.readFileSync(this.path, "utf-8")
 
         const vector = JSON.parse(dataJson)
         return vector
@@ -152,7 +151,7 @@ class ProductManager {
 
 }
 
-class Product {
+export class Product {
     constructor(title,description,price,thumbnail,code,stock){
         this.title=title
         this.thumbnail=thumbnail
@@ -172,6 +171,5 @@ const productPrueba=new Product("prueba","prueba electronico",4200,"z",111,8)
 
 //servicio en java
 const pm = new ProductManager()
-
 
 

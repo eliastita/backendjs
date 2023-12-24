@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "title": "celular",
+    "thumbnail": "x",
+    "price": 400000,
+    "stock": 2,
+    "code": 101,
+    "description": "Producto electronico",
+    "id": 2
+  }
+]
